@@ -20,6 +20,7 @@ var Selectize = function($input, settings) {
 		eventNS          : '.selectize' + (++Selectize.count),
 		highlightedValue : null,
 		isBlurring       : false,
+		keyDownBlurred   : false,
 		isOpen           : false,
 		isDisabled       : false,
 		isRequired       : $input.is('[required]'),
@@ -540,6 +541,16 @@ $.extend(Selectize.prototype, {
 				if (self.settings.create && self.createItem()) {
 					e.preventDefault();
 				}
+
+				// Manually blur before the real blur event. This prevents a keyboard trap
+				// in Firefox: tab tries to focus the scrollbar on the dropdown, blur removes
+				// the dropdown so focus is lost, then next tab focuses the input and re-opens
+				// the dropdown. The result being you can't tab past the dropdown.
+				// This still drops focus sometimes, but when it does the next tab press
+				// focuses the next focusable element instead of re-focusing this input.
+				self.onBlur()
+				self.keyDownBlurred = true
+
 				return;
 			case KEY_BACKSPACE:
 			case KEY_DELETE:
@@ -630,6 +641,12 @@ $.extend(Selectize.prototype, {
 	 */
 	onBlur: function(e, dest) {
 		var self = this;
+
+		if (self.keyDownBlurred) {
+			self.keyDownBlurred = false;
+			return;
+		}
+
 		if (!self.isFocused) return;
 		self.isFocused = false;
 
