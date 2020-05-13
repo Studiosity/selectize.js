@@ -548,8 +548,8 @@ $.extend(Selectize.prototype, {
 				// the dropdown. The result being you can't tab past the dropdown.
 				// This still drops focus sometimes, but when it does the next tab press
 				// focuses the next focusable element instead of re-focusing this input.
-				self.onBlur()
-				self.keyDownBlurred = true
+				self.onBlur();
+				self.keyDownBlurred = true;
 
 				return;
 			case KEY_BACKSPACE:
